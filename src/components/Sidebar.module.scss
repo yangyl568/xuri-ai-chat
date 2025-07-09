@@ -7,19 +7,37 @@
   padding: 24px 0 0 0;
 }
 
-.logo {
-  font-size: 28px;
-  font-weight: bold;
-  color: #1677ff;
-  text-align: center;
+.logoRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 32px;
-  letter-spacing: 2px;
+  gap: 8px;
+  height: 40px;
+}
+
+.newChatBtnWrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 24px;
+  min-height: 40px;
 }
 
 .newChatBtn {
-  margin: 0 16px 24px 16px;
+  margin: 0 16px;
   font-size: 16px;
   height: 40px;
+}
+
+.newChatBtnCollapsed {
+  font-size: 20px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
 }
 
 .menu {
@@ -51,4 +69,23 @@
       color: #d9363e;
     }
   }
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: bold;
+  color: #1677ff;
+  letter-spacing: 2px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.collapseBtn {
+  margin-left: 4px;
+  color: #888;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 } 

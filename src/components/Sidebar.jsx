@@ -1,81 +1,76 @@
 import React, { useState } from 'react';
-import { Layout, Button, Menu, Typography, message } from 'antd';
+import { Layout, Button, Menu, Tooltip } from 'antd';
 import styles from './Sidebar.module.scss';
-import { PlusOutlined, DeleteOutlined, MessageOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, MessageOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
 
 const { Sider } = Layout;
-const { Title } = Typography;
 
-function getNowDate() {
-  const d = new Date();
-  return d.toISOString().slice(0, 10);
-}
-
-const initialConversations = [
-  { id: 1, title: '对话 1', time: '2024-06-01' },
-  { id: 2, title: '对话 2', time: '2024-06-02' },
-];
-
-const Sidebar = () => {
-  const [conversations, setConversations] = useState(initialConversations);
-  const [activeId, setActiveId] = useState(conversations[0]?.id || null);
-  const [nextId, setNextId] = useState(conversations.length + 1);
-
-  const handleNewChat = () => {
-    const newConv = {
-      id: nextId,
-      title: `对话 ${nextId}`,
-      time: getNowDate(),
-    };
-    setConversations([newConv, ...conversations]);
-    setActiveId(newConv.id);
-    setNextId(nextId + 1);
-  };
-
-  const handleDelete = (id, e) => {
-    e.stopPropagation();
-    const filtered = conversations.filter((c) => c.id !== id);
-    setConversations(filtered);
-    if (activeId === id && filtered.length > 0) {
-      setActiveId(filtered[0].id);
-    } else if (filtered.length === 0) {
-      setActiveId(null);
-    }
-  };
-
-  const handleSelect = (id) => {
-    setActiveId(id);
-  };
+const Sidebar = ({ conversations, activeId, onNewChat, onDelete, onSelect }) => {
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <Sider width={260} className={styles.sidebar}>
-      <div className={styles.logo}>旭日AI</div>
-      <Button type="primary" icon={<PlusOutlined />} className={styles.newChatBtn} block onClick={handleNewChat}>
-        新建对话
-      </Button>
-      <Menu
-        mode="inline"
-        className={styles.menu}
-        selectedKeys={activeId ? [String(activeId)] : []}
-      >
-        <Menu.ItemGroup key="history" title="对话记录">
-          {conversations.map((conv) => (
-            <Menu.Item
-              key={conv.id}
-              icon={<MessageOutlined />}
-              className={styles.menuItem}
-              onClick={() => handleSelect(conv.id)}
-            >
-              <span>{conv.title}</span>
-              <span className={styles.time}>{conv.time}</span>
-              <DeleteOutlined
-                className={styles.deleteIcon}
-                onClick={(e) => handleDelete(conv.id, e)}
-              />
-            </Menu.Item>
-          ))}
-        </Menu.ItemGroup>
-      </Menu>
+    <Sider
+      width={260}
+      collapsedWidth={68}
+      collapsible
+      collapsed={collapsed}
+      trigger={null}
+      className={styles.sidebar}
+    >
+      <div className={styles.logoRow}>
+        <div className={styles.logo}>{collapsed ? '旭' : '旭日AI'}</div>
+        <Tooltip title={collapsed ? '展开' : '收起'} placement="right">
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
+            className={styles.collapseBtn}
+            size="small"
+          />
+        </Tooltip>
+      </div>
+      <div className={styles.newChatBtnWrap}>
+        {collapsed ? (
+          <Tooltip title="新建对话" placement="right">
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              shape="circle"
+              className={styles.newChatBtnCollapsed}
+              onClick={onNewChat}
+            />
+          </Tooltip>
+        ) : (
+          <Button type="primary" icon={<PlusOutlined />} className={styles.newChatBtn} block onClick={onNewChat}>
+            新建对话
+          </Button>
+        )}
+      </div>
+      {!collapsed && (
+        <Menu
+          mode="inline"
+          className={styles.menu}
+          selectedKeys={activeId ? [String(activeId)] : []}
+        >
+          <Menu.ItemGroup key="history" title="对话记录">
+            {conversations.map((conv) => (
+              <Menu.Item
+                key={conv.id}
+                icon={<MessageOutlined />}
+                className={styles.menuItem}
+                onClick={() => onSelect(conv.id)}
+              >
+                <span>{conv.title}</span>
+                <span className={styles.time}>{conv.time}</span>
+                <DeleteOutlined
+                  className={styles.deleteIcon}
+                  onClick={e => { e.stopPropagation(); onDelete(conv.id); }}
+                />
+              </Menu.Item>
+            ))}
+          </Menu.ItemGroup>
+        </Menu>
+      )}
     </Sider>
   );
 };
