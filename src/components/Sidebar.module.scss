@@ -1,0 +1,54 @@
+.sidebar {
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  border-right: 1px solid #f0f0f0;
+  padding: 24px 0 0 0;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: bold;
+  color: #1677ff;
+  text-align: center;
+  margin-bottom: 32px;
+  letter-spacing: 2px;
+}
+
+.newChatBtn {
+  margin: 0 16px 24px 16px;
+  font-size: 16px;
+  height: 40px;
+}
+
+.menu {
+  flex: 1;
+  border: none;
+  background: transparent;
+  .ant-menu-item-group-title {
+    font-size: 14px;
+    color: #888;
+    padding-left: 16px;
+  }
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  .time {
+    font-size: 12px;
+    color: #bbb;
+    margin-left: 8px;
+  }
+  .deleteIcon {
+    color: #ff4d4f;
+    margin-left: 12px;
+    cursor: pointer;
+    transition: color 0.2s;
+    &:hover {
+      color: #d9363e;
+    }
+  }
+} 
