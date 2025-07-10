@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Layout, Button, Menu, Tooltip } from 'antd';
 import styles from './Sidebar.module.scss';
-import { PlusOutlined, DeleteOutlined, MessageOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, MessageOutlined, MenuUnfoldOutlined, MenuFoldOutlined, PlusSquareOutlined } from '@ant-design/icons';
 
 const { Sider } = Layout;
 
@@ -34,8 +34,7 @@ const Sidebar = ({ conversations, activeId, onNewChat, onDelete, onSelect }) => 
           <Tooltip title="新建对话" placement="right">
             <Button
               type="primary"
-              icon={<PlusOutlined />}
-              shape="circle"
+              icon={<PlusSquareOutlined />}
               className={styles.newChatBtnCollapsed}
               onClick={onNewChat}
             />

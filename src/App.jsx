@@ -17,10 +17,10 @@ const initialConversations = [
 ];
 
 const initialMessages = {
-  1: [
-    { role: 'assistant', content: '你好，我是旭日AI，有什么可以帮您？' },
-  ],
-  2: [],
+  // 1: [
+  //   { role: 'assistant', content: '你好，我是旭日AI助手，有什么可以帮你的吗？' },
+  // ],
+  // 2: [],
 };
 
 function App() {
@@ -88,7 +88,7 @@ function App() {
         onSelect={handleSelect}
       />
       <Layout>
-        <Content style={{ padding: 0 }}>
+        <Content className='chat-content'>
           <ChatPanel
             currentConv={currentConv}
             messages={currentMessages}
