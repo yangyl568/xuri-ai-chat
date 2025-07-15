@@ -13,7 +13,6 @@ function getNowTime() {
 
 const initialConversations = [
   { id: 1, title: '对话 1', time: '2024-06-01' },
-  { id: 2, title: '对话 2', time: '2024-06-02' },
 ];
 
 const initialMessages = {

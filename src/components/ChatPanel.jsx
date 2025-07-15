@@ -1,40 +1,115 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Button, Space, Divider, Flex, Switch } from 'antd';
-import { Bubble, Welcome, Sender } from '@ant-design/x';
-import styles from './ChatPanel.module.scss';
-import { ShareAltOutlined, EllipsisOutlined, LinkOutlined, SearchOutlined, ApiOutlined } from '@ant-design/icons';
+import React, { useState, useRef, useEffect } from "react";
+import { App, Button, Space, Divider, Flex, Switch } from "antd";
+import { Bubble, Welcome, Sender, useXAgent, useXChat } from "@ant-design/x";
+import styles from "./ChatPanel.module.scss";
+import {
+  ShareAltOutlined,
+  EllipsisOutlined,
+  LinkOutlined,
+  ApiOutlined,
+  UserOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 
-const iconStyle = { color: '#000' };
+var __awaiter =
+  (this && this.__awaiter) ||
+  function (thisArg, _arguments, P, generator) {
+    function adopt(value) {
+      return value instanceof P
+        ? value
+        : new P(function (resolve) {
+            resolve(value);
+          });
+    }
+    return new (P || (P = Promise))(function (resolve, reject) {
+      function fulfilled(value) {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function rejected(value) {
+        try {
+          step(generator["throw"](value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function step(result) {
+        result.done
+          ? resolve(result.value)
+          : adopt(result.value).then(fulfilled, rejected);
+      }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+  };
 
-const ChatPanel = ({ currentConv, messages, onSend }) => {
-  const [value, setValue] = useState('');
+const iconStyle = { color: "#000" };
+const sleep = () => new Promise((resolve) => setTimeout(resolve, 1000));
+
+const roles = {
+  ai: {
+    placement: "start",
+    avatar: { icon: <UserOutlined />, style: { background: "#fde3cf" } },
+  },
+  local: {
+    placement: "end",
+    avatar: { icon: <UserOutlined />, style: { background: "#87d068" } },
+  },
+};
+let mockSuccess = false;
+const ChatPanel = ({ currentConv, onSend }) => {
   const [loading, setLoading] = useState(false);
   const msgEndRef = useRef(null);
+  const { message } = App.useApp();
+  const [content, setContent] = React.useState("");
+
+  // Agent for request
+  const [agent] = useXAgent({
+    request: (_a, _b) =>
+      __awaiter(
+        void 0,
+        [_a, _b],
+        void 0,
+        function* ({ message }, { onSuccess, onError }) {
+          yield sleep();
+          mockSuccess = !mockSuccess;
+          if (mockSuccess) {
+            onSuccess([`请求成功. 你说: ${message}`]);
+          }
+          onError(new Error("请求失败"));
+        }
+      ),
+  });
+  // Chat messages
+  const { onRequest, messages } = useXChat({
+    agent,
+    requestPlaceholder: "等待中...",
+    requestFallback: "请求失败，请稍后再试。",
+  });
 
   useEffect(() => {
     if (msgEndRef.current) {
-      msgEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      msgEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, currentConv]);
+  }, ["", currentConv]);
 
   if (!currentConv) {
     return (
       <div className={styles.welcome}>
-        {/* <div className={styles.logo}>旭日AI</div>
-        <Title level={2}>欢迎使用旭日AI聊天</Title>
-        <Paragraph>请选择左侧对话或新建对话开始聊天。</Paragraph> */}
         <Welcome
-            variant="borderless"
-            icon="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*s5sNRo5LjfQAAAAAAAAAAAAADgCCAQ/fmt.webp"
-            title="欢迎使用旭日AI聊天"
-            description="请选择左侧对话或新建对话开始聊天。"
-            extra={
-              <Space>
-                <Button icon={<ShareAltOutlined />} />
-                <Button icon={<EllipsisOutlined />} />
-              </Space>
-            }
-          />
+          variant="borderless"
+          icon="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*s5sNRo5LjfQAAAAAAAAAAAAADgCCAQ/fmt.webp"
+          title="欢迎使用旭日AI聊天"
+          description="请选择左侧对话或新建对话开始聊天。"
+          extra={
+            <Space>
+              <Button icon={<ShareAltOutlined />} />
+              <Button icon={<EllipsisOutlined />} />
+            </Space>
+          }
+        />
       </div>
     );
   }
@@ -43,21 +118,26 @@ const ChatPanel = ({ currentConv, messages, onSend }) => {
     <div className={styles.chatPanel}>
       <div className={styles.messages}>
         {messages.length === 0 ? (
-          123
+          <div>你好，有什么可以帮你的吗？</div>
         ) : (
-          messages.map((msg, idx) => (
-            <div key={idx} className={styles.bubbleWrap}>
-              <Bubble content={msg.content} type={msg.role === 'user' ? 'primary' : 'default'} />
-            </div>
-          ))
+          <Bubble.List
+            roles={roles}
+            items={messages.map(({ id, message, status }) => ({
+              key: id,
+              loading: status === "loading",
+              role: status === "local" ? "local" : "ai",
+              content: message,
+            }))}
+          />
         )}
         <div ref={msgEndRef} />
       </div>
       <div className={styles.inputBar}>
         {/* 组件：输入框、发送按钮 https://x.ant.design/components/sender-cn#sender-demo-footer */}
         <Sender
-          value={value}
-          onChange={setValue}
+          value={content}
+          loading={agent.isRequesting()}
+          onChange={setContent}
           autoSize={{ minRows: 2, maxRows: 6 }}
           placeholder="请输入消息..."
           footer={({ components }) => {
@@ -65,7 +145,11 @@ const ChatPanel = ({ currentConv, messages, onSend }) => {
             return (
               <Flex justify="space-between" align="center">
                 <Flex gap="small" align="center">
-                  <Button style={iconStyle} type="text" icon={<LinkOutlined />} />
+                  <Button
+                    style={iconStyle}
+                    type="text"
+                    icon={<LinkOutlined />}
+                  />
                   <Divider type="vertical" />
                   深度思考
                   <Switch size="small" />
@@ -73,7 +157,11 @@ const ChatPanel = ({ currentConv, messages, onSend }) => {
                   <Button icon={<SearchOutlined />}>全局搜索</Button>
                 </Flex>
                 <Flex align="center">
-                  <Button type="text" style={iconStyle} icon={<ApiOutlined />} />
+                  <Button
+                    type="text"
+                    style={iconStyle}
+                    icon={<ApiOutlined />}
+                  />
                   <Divider type="vertical" />
                   <SpeechButton style={iconStyle} />
                   <Divider type="vertical" />
@@ -86,8 +174,9 @@ const ChatPanel = ({ currentConv, messages, onSend }) => {
               </Flex>
             );
           }}
-          onSubmit={() => {
-            setLoading(true);
+          onSubmit={(nextContent) => {
+            onRequest(nextContent);
+            setContent("");
           }}
           onCancel={() => {
             setLoading(false);
@@ -99,4 +188,4 @@ const ChatPanel = ({ currentConv, messages, onSend }) => {
   );
 };
 
-export default ChatPanel; 
+export default ChatPanel;
