@@ -1,12 +1,50 @@
-# React + Vite
+# 项目介绍：旭日 AI 聊天
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[旭日ai](./public/xuriai.png)
 
-Currently, two official plugins are available:
+<!-- 图片 -->
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Expanding the ESLint configuration
+## 项目简介
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+旭日 AI 聊天是一个基于现代前端技术栈（如 React、Vite）开发的简洁高效的 AI 聊天应用。项目旨在为用户提供流畅、直观的 AI 对话体验，界面分为左侧对话管理区和右侧聊天主窗口，适合个人和团队日常使用。
+
+## 主要功能
+
+### 左侧边栏
+
+- 显示项目 Logo
+- 新建对话按钮，便于快速发起新会话
+- 对话记录列表，按时间分类展示历史对话
+- 支持对话记录的删除操作，方便管理
+
+### 右侧聊天窗口
+
+- 顶部展示 Logo、欢迎语和简要描述
+- 发送消息后，主区域切换为聊天对话内容
+- 底部为输入框，支持用户输入和发送消息
+
+## 技术栈
+
+- React 18
+- Vite
+- JavaScript (ES6+)
+- SCSS/CSS 模块化
+- 组件化开发
+
+## 适用场景
+
+- AI 助手对话
+- 日常问答
+- 个人知识管理
+- 团队协作沟通
+
+## 项目结构简述
+
+- src/components：核心组件（如 ChatPanel、Sidebar）
+- src/layout：页面布局
+- src/api：接口请求封装
+- public：静态资源
+- README.md：项目说明文档
+
+---
