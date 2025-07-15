@@ -137,4 +137,4 @@ function createHttp({ baseURL = "/api", timeout = 10000, ...restConfig } = {}) {
 const http = createHttp();
 
 export default http;
-export { createHttp };
+export { createHttp, handleFileDownload };
