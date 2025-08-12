@@ -106,7 +106,7 @@ function createHttp({ baseURL = "/api", timeout = 10000, ...restConfig } = {}) {
         const msg = error.response.data?.message || "请求失败";
         console.error(msg);
       } else if (error.request) {
-        console.error("无响应，请检查网络");
+        console.error("无响应，请检查网络", error);
       } else {
         console.error("请求出错", error.message);
       }

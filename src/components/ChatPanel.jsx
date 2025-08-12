@@ -10,43 +10,9 @@ import {
   UserOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-
-var __awaiter =
-  (this && this.__awaiter) ||
-  function (thisArg, _arguments, P, generator) {
-    function adopt(value) {
-      return value instanceof P
-        ? value
-        : new P(function (resolve) {
-            resolve(value);
-          });
-    }
-    return new (P || (P = Promise))(function (resolve, reject) {
-      function fulfilled(value) {
-        try {
-          step(generator.next(value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function rejected(value) {
-        try {
-          step(generator["throw"](value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function step(result) {
-        result.done
-          ? resolve(result.value)
-          : adopt(result.value).then(fulfilled, rejected);
-      }
-      step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-  };
+import { chatApi } from "@/api/chat.js";
 
 const iconStyle = { color: "#000" };
-const sleep = () => new Promise((resolve) => setTimeout(resolve, 1000));
 
 const roles = {
   ai: {
@@ -60,27 +26,44 @@ const roles = {
 };
 let mockSuccess = false;
 const ChatPanel = ({ currentConv, onSend }) => {
-  const [loading, setLoading] = useState(false);
-  const msgEndRef = useRef(null);
   const { message } = App.useApp();
+  const msgEndRef = useRef(null);
+  const [loading, setLoading] = useState(false);
   const [content, setContent] = React.useState("");
 
   // Agent for request
   const [agent] = useXAgent({
-    request: (_a, _b) =>
-      __awaiter(
-        void 0,
-        [_a, _b],
-        void 0,
-        function* ({ message }, { onSuccess, onError }) {
-          yield sleep();
-          mockSuccess = !mockSuccess;
-          if (mockSuccess) {
-            onSuccess([`请求成功. 你说: ${message}`]);
-          }
-          onError(new Error("请求失败"));
-        }
-      ),
+    request: ({ message }, { onSuccess, onError }) => {
+      chatApi({
+        model: "deepseek-ai/DeepSeek-V3",
+        "max_tokens": 512,
+        "enable_thinking": true,
+        "thinking_budget": 4096,
+        "min_p": 0.05,
+        "temperature": 0.7,
+        "top_p": 0.7,
+        "top_k": 50,
+        "frequency_penalty": 0.5,
+        "n": 1,
+        messages: [
+          {
+            role: "user",
+            messages: message,
+          },
+        ],
+      })
+        .then((response) => {
+          const reply = response.choices?.[0]?.message?.content || "请求成功，但未返回内容";
+          onSuccess([reply]); // 调用成功回调
+        })
+        .catch((error) => {
+          onError(new Error("请求失败，请稍后再试")); // 调用失败回调
+        })
+        .finally(() => {
+          setLoading(false); // 确保加载状态被取消
+          setContent(""); // 清空输入框内容
+        });
+    },
   });
   // Chat messages
   const { onRequest, messages } = useXChat({
@@ -175,8 +158,17 @@ const ChatPanel = ({ currentConv, onSend }) => {
             );
           }}
           onSubmit={(nextContent) => {
-            onRequest(nextContent);
-            setContent("");
+            if (!nextContent.trim()) return; // 防止发送空消息
+            setLoading(true); // 设置加载状态
+            onRequest(nextContent) // 调用 useXChat 的 onRequest 方法
+              .then(() => {
+                setLoading(false); // 请求成功后取消加载状态
+              })
+              .catch(() => {
+                setLoading(false); // 请求失败后取消加载状态
+                message.error("消息发送失败，请稍后重试"); // 显示错误提示
+              });
+            setContent(""); // 清空输入框内容
           }}
           onCancel={() => {
             setLoading(false);
